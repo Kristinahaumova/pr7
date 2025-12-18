@@ -6,8 +6,8 @@
 	$password = $_POST['password'];
 	
 	// ищем пользователя
-	$query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."' AND `password`= '".$password."';");
-	
+	$query_user = $mysqli->query(query: "SELECT * FROM `users` WHERE `login`='". $login ."' AND `password`='". $password ."'");
+
 	$id = -1;
 	while($user_read = $query_user->fetch_row()) {
 		$id = $user_read[0];
@@ -15,27 +15,22 @@
 	
 	if($id != -1) {
 		$_SESSION['user'] = $id;
-		// 1) сщздать сессию
-		// 2) записать события 
-		$ip = $_SERVER["REMOTE_ADDR"];
+	
+		# Пользователь авторизовался
+		# 1) Создать сессию
+		$Ip = $_SERVER["REMOTE_ADDR"];
 		$DateStart = date(format: "Y-m-d H:i:s");
-
-		// Получаем ID сессии
-			$sql = "SELECT `id` FROM `session` WHERE `DateStart` = ?";
-			$stmt = $mysqli->prepare($sql);
-			$stmt->bind_param("s", $DateStart);
-			$stmt->execute();
-			$result = $stmt->get_result();
-			$Read = $result->fetch_assoc();
-			$_SESSION["IdSession"] = $Read["id"];
-
-
-
-
-
-			$Sql = "INSERT INTO `logs` (`ip`, `IdUser`, `Date`, `TimeOnline`, `Event`)
-			VALUES ('$ip', '$id', '$DateStart', '00:00:00', 'Пользователь $login авторизовался')";
-	$mysqli->query($Sql);
+	
+		$Sql = "INSERT INTO `session`(`IdUser`, `Ip`, `DateStart`, `DateNow`) VALUES ({$id}, '{$Ip}', '{$DateStart}', '{$DateStart}')";
+		$mysqli->query(query: $Sql);
+	
+		$Sql = "SELECT `Id` FROM `session` WHERE `DateStart` = '{$DateStart}';";
+		$Query = $mysqli->query(query: $Sql);
+		$Read = $Query->fetch_assoc();
+		$_SESSION["IdSession"] = $Read["Id"];
+	
+		# 2) Записать событие авторизации
+		$Sql = "INSERT INTO `logs`(`Ip`, `IdUser`, `Date`, `TimeOnline`, `Event`) VALUES ('{$Ip}', {$id}, '{$DateStart}', '00:00:00', 'Пользователь {$login} авторизовался.')";
 	}
-	echo md5(md5($id));
+	// echo md5(md5($id));
 ?>
