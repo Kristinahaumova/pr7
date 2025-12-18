@@ -32,5 +32,5 @@
 		# 2) Записать событие авторизации
 		$Sql = "INSERT INTO `logs`(`Ip`, `IdUser`, `Date`, `TimeOnline`, `Event`) VALUES ('{$Ip}', {$id}, '{$DateStart}', '00:00:00', 'Пользователь {$login} авторизовался.')";
 	}
-	// echo md5(md5($id));
+	 echo md5(md5($id));
 ?>
